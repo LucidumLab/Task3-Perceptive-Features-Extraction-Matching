@@ -6,7 +6,7 @@ from image_model import Image_Model
 import numpy as np
 import cv2
 
-class Corner_Extractor:
+class Corner_Detection:
 
     def __init__(self):
         '''
@@ -127,3 +127,25 @@ class Corner_Extractor:
         self.k = k
         self.threshold = threshold
 
+class Blobs_Detection:
+    def __init__(self):
+        '''
+        Initializes the blob detector with default parameters.
+        '''
+        self.sigma = 1.0
+        self.smoothing_window = 3
+        
+        
+    def dog_blob_detector(self, image: Image_Model, **kwargs):
+        '''
+        Detects blobs using Difference of Gaussians
+        '''
+        
+        pass
+    
+    def doh_blob_detector(self, image: Image_Model, **kwargs):
+        '''
+        Detects blobs using Determant of Hessien
+        '''
+        pass
+    

@@ -42,6 +42,22 @@ class Image_Model:
         
         return Ix, Iy
     
+    def build_gaussian_pyramid(self, levels=3):
+        '''
+        Builds a Gaussian pyramid of the image.
+        
+        Parameters:
+            levels (int): Number of levels in the pyramid.
+        
+        Returns:
+            pyramid (list): List of images in the pyramid.
+        '''
+        pyramid = [self.image]
+        for i in range(levels):
+            self.image = cv2.pyrDown(self.image)
+            pyramid.append(self.image)
+        
+        return pyramid
     def detect_corners(self, method='harris'):
         if method == 'harris':
             dst = cv2.cornerHarris(self.gray, blockSize=2, ksize=3, k=0.04)
