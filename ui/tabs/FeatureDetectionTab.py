@@ -14,8 +14,7 @@ from PyQt5.QtWidgets import (
     QSpinBox, QLineEdit, QPushButton, QLabel, QGroupBox, QScrollArea
 )
 from PyQt5.QtCore import Qt
-from models.const import * 
-
+from sift.const import * 
 
 class Feature_DetectionTab(QWidget):
     def __init__(self, parent=None):
@@ -68,14 +67,20 @@ class Feature_DetectionTab(QWidget):
                 input_widget = QSpinBox()
                 input_widget.setRange(-1000, 1000)
                 input_widget.setValue(default)
+                input_widget.valueChanged.connect(self.update_constants)  
+
             elif var_type == 'float':
                 input_widget = QDoubleSpinBox()
                 input_widget.setDecimals(5)
                 input_widget.setRange(-10000.0, 10000.0)
                 input_widget.setValue(default)
+                input_widget.valueChanged.connect(self.update_constants)  
+
             else:
                 input_widget = QLineEdit()
                 input_widget.setText(str(default))
+                input_widget.valueChanged.connect(self.update_constants)  
+
 
             self.inputs[var_name] = input_widget
             scroll_layout.addRow(f"{var_name}:", input_widget)
@@ -86,7 +91,6 @@ class Feature_DetectionTab(QWidget):
 
         
         self.btn_sift = QPushButton("Apply SIFT")
-        self.btn_sift.clicked.connect(self.apply_sift)
         self.btn_sift.setFixedSize(450, 50)
         layout.addWidget(self.btn_sift, alignment=Qt.AlignCenter)
 
@@ -95,13 +99,23 @@ class Feature_DetectionTab(QWidget):
         self.btn_harris.clicked.connect(self.apply_harris)
         layout.addWidget(self.btn_harris, alignment=Qt.AlignCenter)
 
-    def apply_sift(self):
+    def update_constants(self):
         """
-        Function to apply SIFT.
+        Function to update the constants with the new values from the input fields.
         """
-        print("SIFT function applied.")
-        
+        for var_name, input_widget in self.inputs.items():
+            if isinstance(input_widget, QSpinBox):
+                
+                globals()[var_name.replace(" ", "_").lower()] = input_widget.value()
+            elif isinstance(input_widget, QDoubleSpinBox):
+                globals()[var_name.replace(" ", "_").lower()] = input_widget.value()
+            elif isinstance(input_widget, QLineEdit):
+                globals()[var_name.replace(" ", "_").lower()] = input_widget.text()
 
+        print("Updated constants:")
+        for var_name in self.inputs:
+            print(f"{var_name}: {globals()[var_name.replace(' ', '_').lower()]}")  
+   
     def apply_harris(self):
         """
         Function to apply Harris corner detection.
