@@ -99,15 +99,19 @@ class CornerDetection:
         return [(int(x), int(y)) for y, x in selected_corners]
     def visualize_corners(self, image, corners, title='Corners'):
         # Convert grayscale image to BGR for visualization
-        img_color = cv2.cvtColor( image, cv2.COLOR_GRAY2BGR)
-        
+        img_color = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
         # Create a new figure and axes for Matplotlib
         fig, ax = plt.subplots()
         ax.imshow(cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB))  # Show image in RGB format
-        
+
         # Plot corners as red circles
         for y, x in corners:
             ax.plot(x, y, 'ro', markersize=3)
+
+        ax.set_title(title)  # Set the plot title
+
+        plt.show()  # Show the image after plotting the corners
 
         # Render the figure to a canvas
         canvas = FigureCanvas(fig)
@@ -122,12 +126,11 @@ class CornerDetection:
         image_pil = Image.open(buf)
         image_np = np.array(image_pil)
 
-        # Close the figure to prevent it from showing
+        # Close the figure to prevent it from showing again
         plt.close(fig)
-        
-        # Return the image as a NumPy array
+
         return image_np
-    
+
      
     def get_parameters(self):
         
