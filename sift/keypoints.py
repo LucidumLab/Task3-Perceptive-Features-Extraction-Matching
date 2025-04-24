@@ -8,7 +8,7 @@ from typing import Tuple
 
 import numpy as np
 
-import const
+from . import const
 from octaves import absolute_sigma, derivatives, pixel_dist_in_octave
 
 

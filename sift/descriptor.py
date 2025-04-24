@@ -7,9 +7,9 @@ to a keypoint. The central function in this file is
 import numpy as np
 
 import const
-from keypoints import Keypoint
-from octaves import pixel_dist_in_octave
-from reference_orientation import gradients, patch_in_frame, weighting_matrix
+from sift import Keypoint
+from sift import pixel_dist_in_octave
+from sift import gradients, patch_in_frame, weighting_matrix
 
 
 def hist_centers() -> np.ndarray:

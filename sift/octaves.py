@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
-import const
+import  const
 
 
 def relative_sigma(layer_idx: int):
