@@ -19,7 +19,7 @@ from PIL import Image
 
 
 def match_sift_features(features1: list[Keypoint],
-                        features2: list[Keypoint]) -> list[tuple[Keypoint, Keypoint]]:
+                        features2: list[Keypoint]) :
     """ A brute force method for finding matches between two sets of SIFT features.
 
     Args:
@@ -52,6 +52,37 @@ def match_sift_features(features1: list[Keypoint],
 
         if min_dist < rest_min * const.rel_dist_match_thresh:
             matches.append((feature1, min_feature))
+
+    return matches
+
+
+def match_sift_features_ncc(features1: list, features2: list):
+    """Brute force NCC-based matching between two sets of SIFT features."""
+    matches = []
+
+    for feature1 in features1:
+        descriptor1 = feature1.descriptor
+        descriptor1 = (descriptor1 - np.mean(descriptor1)) / (np.std(descriptor1) + 1e-8)
+
+        max_ncc = -np.inf
+        rest_max_ncc = -np.inf
+        best_match = None
+
+        for feature2 in features2:
+            descriptor2 = feature2.descriptor
+            descriptor2 = (descriptor2 - np.mean(descriptor2)) / (np.std(descriptor2) + 1e-8)
+
+            ncc = np.dot(descriptor1, descriptor2)
+
+            if ncc > max_ncc:
+                rest_max_ncc = max_ncc
+                max_ncc = ncc
+                best_match = feature2
+            elif ncc > rest_max_ncc:
+                rest_max_ncc = ncc
+
+        if max_ncc > rest_max_ncc * const.rel_dist_match_thresh:
+            matches.append((feature1, best_match))
 
     return matches
 
@@ -94,6 +125,34 @@ def visualize_matches(matches: list[tuple[Keypoint, Keypoint]],
     plt.show()
 
 
+
+def match_sift_features_ssd(features1: list, features2: list):
+    """Brute force SSD-based matching between two sets of SIFT features."""
+    matches = []
+
+    for feature1 in features1:
+        descriptor1 = feature1.descriptor
+
+        min_ssd = np.inf
+        rest_min_ssd = np.inf
+        best_match = None
+
+        for feature2 in features2:
+            descriptor2 = feature2.descriptor
+
+            ssd = np.sum((descriptor1 - descriptor2) ** 2)
+
+            if ssd < min_ssd:
+                rest_min_ssd = min_ssd
+                min_ssd = ssd
+                best_match = feature2
+            elif ssd < rest_min_ssd:
+                rest_min_ssd = ssd
+
+        if min_ssd < rest_min_ssd * const.rel_dist_match_thresh:
+            matches.append((feature1, best_match))
+
+    return matches
 
 def visualize_matches_ndarray(matches: list[tuple[Keypoint, Keypoint]],
                       img1: np.ndarray,

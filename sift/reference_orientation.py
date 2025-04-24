@@ -108,11 +108,6 @@ def weighting_matrix(center_offset: np.array,
                      sigma: float,
                      locality: float) -> np.array:
     """ Calculates a Gaussian weighting matrix.
-        This matrix determines the weight that gradients
-        in a keypoint's neighborhood have when contributing
-        to the keypoint's orientation histogram. See AOS section 4,
-        Lowe section 5.
-
     Args:
         center_offset: The keypoint's offset from the patch's center.
         patch_shape: The shape of the patch. The generated weighting
@@ -143,14 +138,9 @@ def find_histogram_peaks(hist: np.array) :
         and returns the corresponding orientations in radians.
     
     Args:
-        hist: Histogram where each bin represents an orientation, in other
-            words, an angle of a gradient. The mass of the bin is determined
-            by the number of gradients in the keypoint's local neighborhood
-            that have that orientation.
+        hist: Histogram where each bin represents an orientation. 
     Returns:
-        orientations: The orientations of the peaks in radians. In other words,
-            the dominant orientations of gradients in the local neighborhood of
-            the keypoint.
+        orientations: The orientations of the peaks in radians. 
     """
     orientations = list()
     global_max = None
