@@ -55,7 +55,6 @@ class CornerDetection:
         
         sqrt_term = np.sqrt((diff/2)**2 + Sxy**2)
         min_eigenval = (trace/2) - sqrt_term  # Shi-Tomasi
-        # Thresholding
         
         return corners_mask
     
