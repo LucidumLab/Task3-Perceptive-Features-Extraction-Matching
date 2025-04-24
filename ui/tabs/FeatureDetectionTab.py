@@ -9,21 +9,87 @@ from PyQt5.QtGui import QImage, QPixmap
 import cv2
 
 
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QFormLayout, QScrollArea, QDoubleSpinBox,
+    QSpinBox, QLineEdit, QPushButton, QLabel, QGroupBox, QScrollArea
+)
+from PyQt5.QtCore import Qt
+from models.const import * 
+
+
 class Feature_DetectionTab(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # Main layout for the tab
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignTop)
 
-        # SIFT Button
+        
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        scroll_layout = QFormLayout(scroll_widget)
+
+        
+        self.inputs = {}
+
+        
+        variables = [
+            ("Number of Octaves", 'int', nr_octaves),
+            ("Scales per Octave", 'int', scales_per_octave),
+            ("Auxiliary Scales", 'int', auxiliary_scales),
+            ("Original Pixel Distance", 'float', orig_pixel_dist),
+            ("Minimum Pixel Distance", 'float', min_pixel_dist),
+            ("First Upscale", 'float', first_upscale),
+            ("Original Sigma", 'float', orig_sigma),
+            ("Minimum Sigma", 'float', min_sigma),
+            ("Initial Sigma", 'float', init_sigma),
+            ("Magnitude Threshold", 'float', magnitude_thresh),
+            ("Coarse Magnitude Threshold", 'float', coarse_magnitude_thresh),
+            ("Offset Threshold", 'float', offset_thresh),
+            ("Edge Ratio Threshold", 'float', edge_ratio_thresh),
+            ("Maximum Interpolations", 'int', max_interpolations),
+            ("Number of Bins", 'int', nr_bins),
+            ("Reference Locality", 'float', reference_locality),
+            ("Reference Patch Width Scalar", 'float', reference_patch_width_scalar),
+            ("Number of Smoothing Iterations", 'int', nr_smooth_iter),
+            ("Relative Peak Threshold", 'float', rel_peak_thresh),
+            ("Mask Neighbors", 'int', mask_neighbors),
+            ("Max Orientations per Keypoint", 'int', max_orientations_per_keypoint),
+            ("Descriptor Locality", 'float', descriptor_locality),
+            ("Number of Descriptor Histograms", 'int', nr_descriptor_histograms),
+            ("Inter-Histogram Distance", 'float', inter_hist_dist),
+            ("Number of Descriptor Bins", 'int', nr_descriptor_bins),
+            ("Descriptor Bin Width", 'float', descriptor_bin_width),
+            ("Descriptor Clip Max", 'float', descriptor_clip_max),
+            ("Relative Distance Match Threshold", 'float', rel_dist_match_thresh),
+        ]
+
+        
+        for var_name, var_type, default in variables:
+            if var_type == 'int':
+                input_widget = QSpinBox()
+                input_widget.setRange(-1000, 1000)
+                input_widget.setValue(default)
+            elif var_type == 'float':
+                input_widget = QDoubleSpinBox()
+                input_widget.setDecimals(5)
+                input_widget.setRange(-10000.0, 10000.0)
+                input_widget.setValue(default)
+            else:
+                input_widget = QLineEdit()
+                input_widget.setText(str(default))
+
+            self.inputs[var_name] = input_widget
+            scroll_layout.addRow(f"{var_name}:", input_widget)
+
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(scroll_widget)
+        layout.addWidget(scroll_area)
+
+        
         self.btn_sift = QPushButton("Apply SIFT")
         self.btn_sift.clicked.connect(self.apply_sift)
-        self.btn_sift.setFixedSize(450, 50)  # Set fixed size for the button
+        self.btn_sift.setFixedSize(450, 50)
         layout.addWidget(self.btn_sift, alignment=Qt.AlignCenter)
 
-        # Harris Button
         self.btn_harris = QPushButton("Apply Harris")
         self.btn_harris.setFixedSize(450, 50)
         self.btn_harris.clicked.connect(self.apply_harris)
@@ -34,46 +100,46 @@ class Feature_DetectionTab(QWidget):
         Function to apply SIFT.
         """
         print("SIFT function applied.")
-        # Add your SIFT implementation here
+        
 
     def apply_harris(self):
         """
         Function to apply Harris corner detection.
         """
         print("Harris function applied.")
-        # Add your Harris implementation here
+        
 
 class Feature_Detection_Frame(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # Main layout for the frame
+        
         main_layout = QVBoxLayout(self)
         main_layout.setAlignment(Qt.AlignCenter)
 
-        # Create a QSplitter to hold the two images
+        
         splitter = QSplitter(Qt.Horizontal)
         splitter.setObjectName("image_splitter")
 
-        # Input image label
+        
         self.image_1 = QLabel("Input (Double-click to load image)")
-        self.image_1.setMinimumSize(QSize(650,650))  # Set minimum size for the label
+        self.image_1.setMinimumSize(QSize(650,650))  
         self.image_1.setObjectName("original_label")
         self.image_1.setAlignment(Qt.AlignCenter)
         self.image_1.mouseDoubleClickEvent = self.on_input_double_click
         splitter.addWidget(self.image_1)
 
-        # Output image label
+        
         self.image_2 = QLabel("Output")
-        self.image_2.setMinimumSize(QSize(650,650))  # Set minimum size for the label
+        self.image_2.setMinimumSize(QSize(650,650))  
         self.image_2.setObjectName("template_label")
         self.image_2.setAlignment(Qt.AlignCenter)
         splitter.addWidget(self.image_2)
 
-        # Add the splitter to the main layout
+        
         main_layout.addWidget(splitter)
 
-        # Store the images
+        
         self.input_image = None
         self.output_image = None
 
@@ -87,22 +153,22 @@ class Feature_Detection_Frame(QFrame):
         file_path, _ = file_dialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.bmp *.jpeg)")
         
         if file_path:
-            # Read the image using OpenCV
+            
             image = cv2.imread(file_path)
             if image is None:
                 QMessageBox.critical(self, "Error", "Failed to load image.")
                 return
                 
-            # Convert to RGB for display
+            
             self.input_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             
-            # Display the image
+            
             self.display_image(self.input_image, 1)
             
-            # If the parent window has a processor to set, you might want to add:
-            # if hasattr(self.parent(), 'processors'):
-            #     for processor in self.parent().processors.values():
-            #         processor.set_image(self.input_image)
+            
+            
+            
+            
     
     def display_image(self, image, label_number):
         """
