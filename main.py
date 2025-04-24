@@ -24,7 +24,10 @@ from PyQt5.QtWidgets import (
 # from ui.tabs.ThresholdingTab import ThresholdingTab
 # from ui.tabs.FrequencyFilterTab import FrequencyFilterTab
 # from ui.tabs.HybridImageTab import HybridImageTab
-from ui.tabs.FeatureDetectionTab import Feature_DetectionTab, Feature_Detection_Frame
+from ui.tabs.FeatureDetectionTab import Feature_Detection_Frame , Feature_DetectionTab
+
+
+
 
 
 class MainWindow(QMainWindow):
@@ -63,15 +66,18 @@ class MainWindow(QMainWindow):
 
 
     def init_ui(self, main_layout):
+        # Left Frame
         left_frame = QFrame()
+        left_frame.setFixedWidth(500)
         left_frame.setObjectName("left_frame")
         left_layout = QVBoxLayout(left_frame)
         
         tab_widget = QTabWidget()
         tab_widget.setObjectName("tab_widget")
 
-        
         # Feature Detection Tab
+
+
         self.feature_detection_tab = Feature_DetectionTab(self)
         tab_widget.addTab(self.feature_detection_tab, "Feature Detection")
 
@@ -80,88 +86,49 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(tab_widget)
         main_layout.addWidget(left_frame)
         
-        #? Right Frame with Control Buttons and Image Display
+        # Right Frame
         self.right_frame = QFrame()
         self.right_frame.setObjectName("right_frame")
         self.right_layout = QVBoxLayout(self.right_frame)
-        self.right_layout.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        self.right_layout.setAlignment(Qt.AlignTop)  # Center the content vertically and horizontally
 
-        
         # Control Buttons Frame
         control_frame = QFrame()
         control_frame.setMaximumHeight(100)
         control_layout = QHBoxLayout(control_frame)
-        self.right_layout.addWidget(control_frame)
 
-        # Control Buttons Frame
-        control_buttons_frame = QFrame()
-        control_buttons_layout = QHBoxLayout(control_buttons_frame)
-
-
-        self.btn_equalize = QPushButton()
-        self.btn_equalize.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'resources/equalizer-solid.png')))
-        self.btn_equalize.setIconSize(QSize(32, 32))
-        self.btn_equalize.clicked.connect(self.equalize)
-        control_buttons_layout.addWidget(self.btn_equalize)
-
-        self.btn_normalize = QPushButton()
-        self.btn_normalize.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'resources/gaussain-curve.png')))
-        self.btn_normalize.setIconSize(QSize(32, 32))
-        self.btn_normalize.clicked.connect(self.normalize)
-        control_buttons_layout.addWidget(self.btn_normalize)
-
-        control_layout.addWidget(control_buttons_frame)
-
-        control_layout.addSpacerItem(QSpacerItem(0, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-
-        # Image Control Buttons Frame
-        image_control_buttons_frame = QFrame()
-        image_control_buttons_layout = QHBoxLayout(image_control_buttons_frame)
+        control_layout.addSpacerItem(QSpacerItem(0, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.btn_confirm = QPushButton()
-        self.btn_confirm.setIcon(QIcon(os.path.join(os.path.dirname(__file__), '../resources/confirm.png')))
+        self.btn_confirm.setIcon(QIcon(os.path.join(os.path.dirname(__file__), './resources/confirm.png')))
         self.btn_confirm.setIconSize(QSize(28, 28))
         self.btn_confirm.clicked.connect(self.confirm_edit)
-        image_control_buttons_layout.addWidget(self.btn_confirm)
+        control_layout.addWidget(self.btn_confirm)
 
         self.btn_discard = QPushButton()
-        self.btn_discard.setIcon(QIcon(os.path.join(os.path.dirname(__file__), '../resources/discard.png')))
+        self.btn_discard.setIcon(QIcon(os.path.join(os.path.dirname(__file__), './resources/discard.png')))
         self.btn_discard.setIconSize(QSize(28, 28))
         self.btn_discard.clicked.connect(self.discard_edit)
-        image_control_buttons_layout.addWidget(self.btn_discard)
+        control_layout.addWidget(self.btn_discard)
 
         self.btn_reset = QPushButton()
-        self.btn_reset.setIcon(QIcon(os.path.join(os.path.dirname(__file__), '../resources/reset.png')))
+        self.btn_reset.setIcon(QIcon(os.path.join(os.path.dirname(__file__), './resources/reset.png')))
         self.btn_reset.setIconSize(QSize(28, 28))
         self.btn_reset.clicked.connect(self.reset_image)
-        image_control_buttons_layout.addWidget(self.btn_reset)
-        control_layout.addWidget(image_control_buttons_frame)
+        control_layout.addWidget(self.btn_reset)
 
-        # Add the control frame to the right layout
-        self.content_stack = QStackedWidget()
-        self.right_layout.addWidget(self.content_stack)
 
-        # Image Display Frame
-        self.image_display_frame = QFrame()  # Use self.image_display_frame instead of image_display_frame
-        self.image_display_frame.setFixedSize(1390, 880)
-        self.image_display_layout = QVBoxLayout(self.image_display_frame)
-
-        self.lbl_image = QLabel("No Image Loaded")
-        self.lbl_image.setObjectName("lbl_image")
-        self.lbl_image.setAlignment(Qt.AlignCenter)
-        self.image_display_layout.addWidget(self.lbl_image)
-        self.lbl_image.mouseDoubleClickEvent = self.on_image_label_double_click
-
-        # Add the image display frame to the content stack
-        self.content_stack.addWidget(self.image_display_frame)
+        self.right_layout.addWidget(control_frame)
 
         # Feature Detection Frame
         self.feature_detection_frame = Feature_Detection_Frame()
-        self.content_stack.addWidget(self.feature_detection_frame)
+        self.feature_detection_layout = QVBoxLayout(self.feature_detection_frame)
+        self.feature_detection_layout.setAlignment(Qt.AlignCenter)  # Center the content vertically and horizontally
+        self.right_layout.addWidget(self.feature_detection_frame, alignment=Qt.AlignCenter)  # Center the frame
 
-        # Add the right frame to the main layout
         main_layout.addWidget(self.right_frame)
 
+        
     def on_tab_changed(self, index):
         """
         Switch the content of the right frame based on the selected tab.
