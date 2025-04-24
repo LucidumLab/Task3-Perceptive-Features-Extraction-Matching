@@ -17,6 +17,22 @@ import numpy as np
 eps = np.finfo(dtype=float).eps
 
 
+#########################
+# Harris Corner Detection
+#########################
+
+# Harris detector free parameter (controls sensitivity to corners)
+harris_k = 0.04
+
+# Threshold for corner response function
+harris_threshold = 0.01
+
+# Standard deviation for the Gaussian filter used in smoothing
+harris_sigma = 1.0
+
+# Size of the window used for corner detection (must be odd)
+harris_smoothing_window = 3
+
 ###################
 # Octaves
 ###################

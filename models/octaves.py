@@ -1,11 +1,3 @@
-"""
-This file contains functions related to generating and manipulating
-the Gaussian octaves and Difference of Gaussian octaves of an image.
-The central functions in this file are
-    `build_gaussian_octaves`
-    and
-    `build_dog_octave`
-"""
 
 import itertools
 import math
@@ -18,20 +10,15 @@ from scipy.ndimage import gaussian_filter
 import const
 
 
-def progression_sigma(layer_idx: int) -> float:
-    """ Calculates the Gaussian blur's standard deviation required
-        to move from (layer_idx - 1) -> layer_idx in scale-space.
-        See AOS section 2.2. This ensures each octave covers a
-        doubling of the blurring or sigma, and that the generated
-        layer's sigmas obey the following formula:
-
+def relative_sigma(layer_idx: int):
+    """
+        Section 2.2 Digital Gaussian Space
         layer_sigma = (octave_idx / min_pixel_dist) * min_sigma * 2 ** (layer_idx / scales_per_octave)
 
     Args:
-        layer_idx: The index of a layer.
+        layer_idx: The index of a layer in octave.
     Returns:
-        sigma: The Gaussian blur filter's standard deviation required to
-            to move from (layer_idx - 1) -> layer_idx.
+        sigma: The Gaussian blur filter's std required for (layer_idx - 1) -> layer_idx.
     """
     sigma = (const.min_sigma / const.min_pixel_dist) \
             * math.sqrt(2 ** (2 * layer_idx / const.scales_per_octave)
@@ -40,48 +27,35 @@ def progression_sigma(layer_idx: int) -> float:
 
 
 def absolute_sigma(octave_idx: int,
-                   layer_idx: int) -> float:
-    """ Calculates the Gaussian blur's standard deviation
-        associated with the blurring of a layer. See AOS section
-        2.2. While progression_sigma provides the relative sigma
-        required to move from one layer to the next, this function
-        provides the layer's absolute sigma. In other words, the
-        level of blurring required to move from the original image
+                   layer_idx: int):
+    """ Calculates layer's absolute sigma: the level of blurring required to move from the original image
         to this layer in scale-space.
 
     Args:
-        octave_idx: The index of an octave. Here the first octave
-            with index 0 is the octave of the 2x upsampled original
-            image with pixel distance 0.5.
-        layer_idx: The index of a layer.
+        octave_idx: Note we start with the octave of the base image
     Returns:
-        sigma: The Gaussian blur filter's standard deviation required to
-            to move from (layer_idx - 1) -> layer_idx.
+        sigma: The relative Sigmas.
     """
     pixel_dist = pixel_dist_in_octave(octave_idx)
     sigma = (pixel_dist / const.min_pixel_dist) * const.min_sigma * 2 ** (layer_idx / const.scales_per_octave)
     return sigma
 
 
-def build_gaussian_octaves(img: np.ndarray) -> List[np.ndarray]:
-    """ Builds Gaussian octaves, consisting of an image repeatedly
-        convolved with a Gaussian kernel. See AOS section 2.2.
-
+def build_gaussian_octaves(img: np.ndarray):
+    """ For each octave apply the sigma for building the scale space
     Args:
-        img: Image used to create the octaves.
+        img: The image in the pyramid used
     Returns:
         octaves: A list of octaves of Gaussian convolved images.
             Here, each octave is a [s, y, x] 3D tensor.
     """
     layers_per_octave = const.scales_per_octave + const.auxiliary_scales
-    octaves = list()
+    octaves = []
     previous_octave = None
 
     for octave_idx in range(const.nr_octaves):
 
-        # Start the first octave with the 2x upsampled input image.
-        # All other octaves start with the 2x downsampled previous
-        # octave's second from last layer.
+        #first octave 2x upsampled input image.
         if octave_idx == 0:
             img = cv2.resize(img, None, fx=const.first_upscale, fy=const.first_upscale, interpolation=cv2.INTER_LINEAR)
             img = gaussian_filter(img, const.init_sigma)
@@ -94,7 +68,7 @@ def build_gaussian_octaves(img: np.ndarray) -> List[np.ndarray]:
         # The previous octave's[-2] upsampled image is considered layer
         # index 0, so indexing starts at 1
         for layer_idx in range(1, layers_per_octave):
-            sigma = progression_sigma(layer_idx)
+            sigma = relative_sigma(layer_idx)
             img = gaussian_filter(img, sigma)
             octave.append(img)
 
@@ -113,7 +87,7 @@ def build_dog_octave(gauss_octave: np.ndarray) -> np.ndarray:
     Returns:
         dog_octave: An octave of Difference of Gaussian images.
     """
-    dog_octave = list()
+    dog_octave = []
 
     for layer_idx, layer in enumerate(gauss_octave):
         if layer_idx:
@@ -125,8 +99,8 @@ def build_dog_octave(gauss_octave: np.ndarray) -> np.ndarray:
 
 
 def shift(array: np.ndarray,
-          shift_spec: list or tuple) -> np.ndarray:
-    """ Takes a 3D tensor and shifts it in a specified direction.
+          shift_spec: list or tuple):
+    """ make a movement in the space.
 
     Args:
         array: The 3D array that is to be shifted.
@@ -160,7 +134,7 @@ def find_dog_extrema(dog_octave: np.ndarray) -> np.ndarray:
     shifts = list(itertools.product([-1, 0, 1], repeat=3))
     shifts.remove((0, 0, 0))
 
-    diffs = list()
+    diffs = []
     for shift_spec in shifts:
         shifted = shift(dog_octave, shift_spec)
         diff = dog_octave - shifted

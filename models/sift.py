@@ -1,12 +1,3 @@
-"""
-This file contains the main function for demoing the SIFT implementation.
-
-Throughout this repository,
-mentions of 'AOS' refer to
-    Anatomy of the SIFT Method. Otero, Ives Rey. Diss. École normale supérieure de Cachan-ENS Cachan, 2015.
-mentions of 'Lowe' refer to
-    Sift-the scale invariant feature transform. Lowe. Int. J, 2(91-110), 2, 2004.
-"""
 
 import cv2
 import numpy as np
@@ -22,10 +13,9 @@ def detect_sift_features(img: np.ndarray) -> list[Keypoint]:
     """ Detects SIFT keypoints in an image.
 
     Args:
-        img: A grayscale image with values in range [0, 1].
+        img: a normalized grayscale image[0, 1].
     Returns:
-        keypoints: A list of keypoints objects, each containing
-            a coordinate, reference orientation and descriptor.
+        keypoints: A list of keypoints objects.
     """
     gauss_octaves = build_gaussian_octaves(img)
 
