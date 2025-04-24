@@ -3,14 +3,7 @@ import numpy as np
 import random as rand
 
 
-# CS - 6475 Computational Photography, Summer 2016
-# Project - 2
-# Scale Invariant Image Transform (SIFT) implementation
-# Distinctive Image Features from Scale-Invariants Keypoints.
-# by David G. Lowe; IJCV 2004:
-# https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf
 
-# Code implemented by Navdeep Dahiya; ndahiya3@gatech.edu;
 
 def extractSIFTFeatures(gray, octaves, scales, sigma, sigmaN, k):
     # Extract SIFT features from input gray image
@@ -471,33 +464,33 @@ def bilinearInterpolation(gray):
 
     return dest
 
+if __name__ == "__main__":
+    # Test the routines
+    fileName = input('Please enter filename to process: ')
+    img = cv2.imread(fileName,cv2.IMREAD_COLOR)
 
-# Test the routines
-fileName = input('Please enter filename to process: ')
-img = cv2.imread(fileName,cv2.IMREAD_COLOR)
+    gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = np.array(gray1.shape, np.float32)
+    gray = np.divide(gray1, 255.0)
 
-gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-gray = np.array(gray1.shape, np.float32)
-gray = np.divide(gray1, 255.0)
+    gray = cv2.GaussianBlur(gray, (0, 0), 0.5)
 
-gray = cv2.GaussianBlur(gray, (0, 0), 0.5)
+    k = np.sqrt(2.0)
+    keypoints = extractSIFTFeatures(gray, 4, 5, 1.6, 0.5, k)
 
-k = np.sqrt(2.0)
-keypoints = extractSIFTFeatures(gray, 4, 5, 1.6, 0.5, k)
+    for i in xrange(0, len(keypoints)):
+        kp = keypoints[i]
+        x = kp[0]
+        y = kp[1]
+        s = kp[2]
+        # cv2.circle(img,(int(np.round(x)),int(np.round(y))),int(5*s),(0,0,255))
+        cv2.ellipse(img, (int(np.round(x)), int(np.round(y))), (int(6 * s), int(4 * s)), kp[3], 0, 360,
+                    (rand.randint(0, 255), rand.randint(0, 255), rand.randint(0, 255)))
+    print len(keypoints)
+    cv2.imshow('SIFT Keypoints', img)
+    cv2.waitKey(0)
 
-for i in xrange(0, len(keypoints)):
-    kp = keypoints[i]
-    x = kp[0]
-    y = kp[1]
-    s = kp[2]
-    # cv2.circle(img,(int(np.round(x)),int(np.round(y))),int(5*s),(0,0,255))
-    cv2.ellipse(img, (int(np.round(x)), int(np.round(y))), (int(6 * s), int(4 * s)), kp[3], 0, 360,
-                (rand.randint(0, 255), rand.randint(0, 255), rand.randint(0, 255)))
-print len(keypoints)
-cv2.imshow('SIFT Keypoints', img)
-cv2.waitKey(0)
+    cv2.imwrite('result.jpg', img)
 
-cv2.imwrite('result.jpg', img)
-
-print "Saving result in.. result.jpg"
-print "Done!"
+    print "Saving result in.. result.jpg"
+    print "Done!"

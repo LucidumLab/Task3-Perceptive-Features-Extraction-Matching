@@ -3,6 +3,11 @@ from numpy.linalg import det, lstsq, norm
 from cv2 import resize, GaussianBlur, subtract, KeyPoint, INTER_LINEAR, INTER_NEAREST
 from functools import cmp_to_key
 import logging
+# Visualize keypoints from computeKeypointsAndDescriptors function
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 
 ####################
 # Global variables #
@@ -150,8 +155,11 @@ def localizeExtremumViaQuadraticFit(i, j, image_index, octave_index, num_interva
         pixel_cube = stack([first_image[i-1:i+2, j-1:j+2],
                             second_image[i-1:i+2, j-1:j+2],
                             third_image[i-1:i+2, j-1:j+2]]).astype('float32') / 255.
+        
         gradient = computeGradientAtCenterPixel(pixel_cube)
+        
         hessian = computeHessianAtCenterPixel(pixel_cube)
+        
         extremum_update = -lstsq(hessian, gradient, rcond=None)[0]
         if abs(extremum_update[0]) < 0.5 and abs(extremum_update[1]) < 0.5 and abs(extremum_update[2]) < 0.5:
             break
@@ -427,12 +435,7 @@ def generateDescriptors(keypoints, gaussian_images, window_width=4, num_bins=8, 
 
 
 
-# Visualize keypoints from computeKeypointsAndDescriptors function
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
-from sift import computeKeypointsAndDescriptors
+
 
 def visualize_sift_keypoints(image_path, num_keypoints=None):
     """
@@ -498,8 +501,109 @@ def visualize_sift_keypoints(image_path, num_keypoints=None):
     
     return keypoints, descriptors
 
-# Example usage
-image_path = 'data/box.png'  # Change this to your image path
-keypoints, descriptors = visualize_sift_keypoints(image_path, num_keypoints=100)  # Show top 100 keypoints
 
 
+def keypoint_matching(desc1, kp1, desc2, kp2, threshold=0.5):
+    """
+    Manually match keypoints between two images using normalized cross-correlation (NCC).
+    
+    Args:
+        desc1: List of descriptors from first image
+        kp1: List of keypoints from first image
+        desc2: List of descriptors from second image
+        kp2: List of keypoints from second image
+        threshold: Minimum NCC score for a match (range: -1 to 1, where closer to 1 is better)
+        
+    Returns:
+        matc
+        h_percentage: Percentage of matched keypoints (0-100)
+        matches: List of tuples (index1, index2, ncc_score) for each match
+    """
+    desc1 = np.array(desc1, dtype=np.float32)
+    desc2 = np.array(desc2, dtype=np.float32)
+    print(f"Descriptors 1 shape: {desc1.shape}, Descriptors 2 shape: {desc2.shape}")
+    
+    matches = []
+
+    def ncc(a, b):
+        a_mean = a - np.mean(a)
+        b_mean = b - np.mean(b)
+        denom = np.linalg.norm(a_mean) * np.linalg.norm(b_mean)
+        return np.dot(a_mean, b_mean) / denom if denom != 0 else -1
+
+    for i, d1 in enumerate(desc1):
+        best_score = -1
+        best_match = None
+        
+        for j, d2 in enumerate(desc2):
+            score = ncc(d1, d2)
+            if score > best_score:
+                best_score = score
+                best_match = j
+        
+        if best_score <= threshold:
+            matches.append((i, best_match, best_score))
+        
+        print(f"Match {i}: Keypoint {i} in image 1 matched with keypoint {best_match} in image 2 with NCC {best_score:.4f}")
+
+    total_keypoints = min(len(kp1), len(kp2))
+    print(f'Total keypoints in image 1: {len(kp1)}, image 2: {len(kp2)}')
+    print(f'Total matches found: {len(matches)}')
+    match_percentage = (len(matches) / total_keypoints * 100) if total_keypoints > 0 else 0
+    
+    return match_percentage, matches
+
+def visualize_manual_matches_matplotlib(image1, kp1, image2, kp2, matches):
+    """
+    Visualize matches between two images using matplotlib.
+    
+    Args:
+        image1: First grayscale image.
+        kp1: List of cv2.KeyPoint from first image.
+        image2: Second grayscale image.
+        kp2: List of cv2.KeyPoint from second image.
+        matches: List of (idx1, idx2, score) tuples.
+    """
+    # Create a canvas with both images side by side
+    h1, w1 = image1.shape
+    h2, w2 = image2.shape
+    canvas = np.zeros((max(h1, h2), w1 + w2), dtype=np.uint8)
+    canvas[:h1, :w1] = image1
+    canvas[:h2, w1:] = image2
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.imshow(canvas, cmap='gray')
+    ax.axis('off')
+
+    # Draw lines and points
+    for idx1, idx2, _ in matches:
+        pt1 = kp1[idx1].pt
+        pt2 = kp2[idx2].pt
+        x1, y1 = pt1
+        x2, y2 = pt2
+
+        color = np.random.rand(3,)
+        ax.plot([x1, x2 + w1], [y1, y2], color=color, linewidth=0.8)
+        ax.plot(x1, y1, marker='o', markersize=4, color=color)
+        ax.plot(x2 + w1, y2, marker='o', markersize=4, color=color)
+
+    plt.tight_layout()
+    plt.show()
+    # Example usage
+
+if __name__ == "__main__":
+    image_path = 'box.png'  # Change this to your image path
+    keypoints_1, descriptors_1 = visualize_sift_keypoints(image_path, num_keypoints=100)  # Show top 100 keypoints
+    image1 = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    image_path = 'box_in_scene.png'  # Change this to your image path
+    image2 = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    keypoints_2, descriptors_2 = visualize_sift_keypoints(image_path, num_keypoints=100)  # Show top 100 keypoints
+
+    # Example usage
+    # Compare keypoints and get matching percentage
+    match_percentage, good_matches = keypoint_matching(descriptors_1, keypoints_1, descriptors_2, keypoints_2)
+   
+    visualize_manual_matches_matplotlib(image1, keypoints_1, image2, keypoints_2, good_matches)
+
+    
