@@ -137,7 +137,9 @@ class MainWindow(QMainWindow):
     def sift_matching(self):
         image_1 = self.feature_detection_frame.image1_array
         image_2 = self.feature_detection_frame.image2_array
-        
+        image_1 = cv2.normalize(image_1, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        image_2 = cv2.normalize(image_2, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+
         output_image, _, _, _ = apply_sift(image_1, image_2)
         
  

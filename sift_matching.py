@@ -11,7 +11,7 @@ from sift.octaves import build_gaussian_octaves, build_dog_octave, find_dog_extr
 from sift.reference_orientation import assign_reference_orientations
 
 
-def detect_sift_features(img: np.ndarray) -> list[Keypoint]:
+def detect_sift_features(img: np.ndarray):
     """ Detects SIFT keypoints in an image.
 
     Args:

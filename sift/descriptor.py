@@ -222,18 +222,11 @@ def normalize_sift_feature(hists: np.ndarray) -> np.ndarray:
 
 def assign_descriptor(keypoints: list[Keypoint],
                       gauss_octave: np.array,
-                      octave_idx: int) -> list[Keypoint]:
+                      octave_idx: int) :
     """ Assigns a descriptor to each keypoint.
         A descriptor is a collection of histograms that capture
         the distribution of gradients orientations in an oriented
-        keypoint's local neighborhood. See AOS section 4.2 and Lowe
-        section 6. Descriptors are created by taking a square
-        patch of gradients surrounding the keypoint, assigning
-        each gradient in the patch a coordinates relative to the
-        oriented keypoint, and accumulating the gradients into a set
-        of histograms. A gradient's contributions to a particular
-        histogram is determined by its distance from the histogram's
-        and keypoint's location.
+        keypoint's local neighborhood.
 
     Args:
         keypoints: A list of keypoints that have been assigned an orientation.

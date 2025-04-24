@@ -50,7 +50,7 @@ class CornerDetection:
         # Compute determinant and trace of the matrix M
         trace = (Sxx + Syy) 
         diff = (Sxx - Syy) 
-        det = (Sxx * Syy) - (image.Ixy ** 2)
+        det = (Sxx * Syy) - (Sxy ** 2)
         
         
         

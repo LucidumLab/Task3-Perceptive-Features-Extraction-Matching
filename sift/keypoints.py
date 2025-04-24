@@ -32,14 +32,6 @@ class Keypoint:
 
 
 def in_frame(coord: np.ndarray, shape: np.ndarray) -> bool:
-    """ Determines whether a coordinate falls within an array.
-
-    Args:
-        coord: A coordinate.
-        shape: The shape of the an array.
-    Returns :
-        True if in frame, False if not.
-    """
     return (coord >= 0).all() and (coord <= shape - 1).all()
 
 
@@ -84,13 +76,8 @@ def  interpolate(extremum_coord: np.ndarray,
                 dog_octave: np.ndarray,
                 derivs: np.ndarray,
                 second_derivs: np.ndarray) -> Tuple[bool, np.ndarray, float]:
-    """ Interpolates the coordinate and value of an extremum in
-        a Difference of Gaussian octave. Interpolation is performed
-        by a Taylor expansion to fit a 3D quadratic function to the
-        local sample. The interpolated extremum is where this function's
-        derivative equals 0. This enables more precise sub-pixel keypoint
-        locations, which improves descriptor quality. For details,
-        see Lowe section 4 and AOS section 3.2.
+    """ Interpolation is performed by a Taylor expansion to fit a 3D quadratic function to the
+        local sample.
 
     Args:
         extremum_coord: Non-interpolated coordinates of an extremum.
@@ -129,17 +116,14 @@ def  interpolate(extremum_coord: np.ndarray,
 
 def find_keypoints(extrema: np.ndarray, dog_octave: np.ndarray) -> np.ndarray:
     """ Finds valid keypoint coordinates among candidate Difference of
-        Gaussian extrema. A candidate keypoint coordinate must be
-        interpolated, pass a magnitude threshold, and pass the
-        edge test.
-
+        Gaussian extrema. 
     Args:
         extrema: Difference of Gaussian extrema coordinates.
         dog_octave: An octave of Difference of Gaussian images.
     Returns:
         keypoint_coords: Interpolated coordinates of potential keypoints.
     """
-    keypoint_coords = list()
+    keypoint_coords = []
     derivs, second_derivs = derivatives(dog_octave)
 
     for extremum_coord in extrema.T:

@@ -138,16 +138,10 @@ def weighting_matrix(center_offset: np.array,
     return weights
 
 
-def find_histogram_peaks(hist: np.array) -> List[float]:
+def find_histogram_peaks(hist: np.array) :
     """ Finds peaks in the gradient orientations histogram,
         and returns the corresponding orientations in radians.
-        Peaks are the maximum bin and bins that lie within 0.80
-        of the mass of the maximum bin. See AOS section 4.1 and
-        Lowe section 5. When the modulo operator is used in this
-        function, it is to  account for the fact that the first
-        and last bin are neighbors, namely, the rotations by 0
-        and 2pi radians.
-
+    
     Args:
         hist: Histogram where each bin represents an orientation, in other
             words, an angle of a gradient. The mass of the bin is determined
@@ -191,13 +185,8 @@ def find_histogram_peaks(hist: np.array) -> List[float]:
 
 def assign_reference_orientations(keypoint_coords: np.array,
                                   gauss_octave: np.array,
-                                  octave_idx: int) -> list[Keypoint]:
+                                  octave_idx: int):
     """ Assigns dominant local neighborhood gradient orientations to keypoints.
-        These dominant orientations are also known as reference orientations.
-        A keypoint coordinate may have multiple reference orientations.
-        In that case, multiple Keypoint objects are created for that coordinate.
-        Reference orientations are used to create rotation invariant descriptors.
-        See Lowe section 5, AOS section 4.1.
 
     Args:
         keypoint_coords: The keypoints' 3D coordinates.

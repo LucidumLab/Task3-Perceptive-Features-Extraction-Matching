@@ -12,8 +12,7 @@ from . import const
 
 def relative_sigma(layer_idx: int):
     """
-        Section 2.2 Digital Gaussian Space
-        layer_sigma = (octave_idx / min_pixel_dist) * min_sigma * 2 ** (layer_idx / scales_per_octave)
+    layer_sigma = (octave_idx / min_pixel_dist) * min_sigma * 2 ** (layer_idx / scales_per_octave)
 
     Args:
         layer_idx: The index of a layer in octave.
@@ -28,9 +27,8 @@ def relative_sigma(layer_idx: int):
 
 def absolute_sigma(octave_idx: int,
                    layer_idx: int):
-    """ Calculates layer's absolute sigma: the level of blurring required to move from the original image
-        to this layer in scale-space.
-
+    """
+        Calculates layer's absolute sigma
     Args:
         octave_idx: Note we start with the octave of the base image
     Returns:
@@ -55,7 +53,7 @@ def build_gaussian_octaves(img: np.ndarray):
 
     for octave_idx in range(const.nr_octaves):
 
-        #first octave 2x upsampled input image.
+        #first octave 2x upsampled input image... Base Image
         if octave_idx == 0:
             img = cv2.resize(img, None, fx=const.first_upscale, fy=const.first_upscale, interpolation=cv2.INTER_LINEAR)
             img = gaussian_filter(img, const.init_sigma)
@@ -79,7 +77,7 @@ def build_gaussian_octaves(img: np.ndarray):
     return octaves
 
 
-def build_dog_octave(gauss_octave: np.ndarray) -> np.ndarray:
+def build_dog_octave(gauss_octave: np.ndarray):
     """ Builds a Difference of Gaussian octave.
 
     Args:
@@ -120,12 +118,9 @@ def shift(array: np.ndarray,
     return shifted
 
 
-def find_dog_extrema(dog_octave: np.ndarray) -> np.ndarray:
+def find_dog_extrema(dog_octave: np.ndarray):
     """ Finds extrema in a Difference of Gaussian octave.
-        This is achieved by subtracting a cell by all it's
-        direct (including diagonal) neighbors, and confirming
-        all differences have the same sign.
-
+    
     Args:
         dog_octave: An octave of Difference of Gaussian images.
     Returns:
@@ -134,6 +129,11 @@ def find_dog_extrema(dog_octave: np.ndarray) -> np.ndarray:
     shifts = list(itertools.product([-1, 0, 1], repeat=3))
     shifts.remove((0, 0, 0))
 
+    # 0 0
+    # 0 1 
+    # 1 2 3  7 8 9
+    # 4 5 6  1 2 3 
+    # 7 8 9  4 5 6
     diffs = []
     for shift_spec in shifts:
         shifted = shift(dog_octave, shift_spec)
@@ -148,17 +148,8 @@ def find_dog_extrema(dog_octave: np.ndarray) -> np.ndarray:
     return extrema_coords
 
 
-def derivatives(dog_octave: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    """ Calculates the first and second order s, y, x derivatives for an octave.
-
-    Args:
-        dog_octave: An octave of Difference of Gaussian images.
-    Returns:
-        derivs: The s, y, and x derivatives of the octave.
-        second_derivs: The ss, yy, xx, sy, sx, yx derivatives of the octave.
-            Provided in the format of a flattened Hessian for convenient
-            indexing and reshaping.
-    """
+def derivatives(dog_octave: np.ndarray):
+   
     o = dog_octave
 
     ds = (shift(o, [1, 0, 0]) - shift(o, [-1, 0, 0])) / 2
