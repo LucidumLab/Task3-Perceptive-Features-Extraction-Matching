@@ -67,19 +67,19 @@ class Feature_DetectionTab(QWidget):
                 input_widget = QSpinBox()
                 input_widget.setRange(-1000, 1000)
                 input_widget.setValue(default)
-                input_widget.valueChanged.connect(self.update_constants)  # Connect valueChanged signal
+                input_widget.valueChanged.connect(self.update_constants)  
 
             elif var_type == 'float':
                 input_widget = QDoubleSpinBox()
                 input_widget.setDecimals(5)
                 input_widget.setRange(-10000.0, 10000.0)
                 input_widget.setValue(default)
-                input_widget.valueChanged.connect(self.update_constants)  # Connect valueChanged signal
+                input_widget.valueChanged.connect(self.update_constants)  
 
             else:
                 input_widget = QLineEdit()
                 input_widget.setText(str(default))
-                input_widget.valueChanged.connect(self.update_constants)  # Connect valueChanged signal
+                input_widget.valueChanged.connect(self.update_constants)  
 
 
             self.inputs[var_name] = input_widget
@@ -105,7 +105,7 @@ class Feature_DetectionTab(QWidget):
         """
         for var_name, input_widget in self.inputs.items():
             if isinstance(input_widget, QSpinBox):
-                # Update the corresponding variable in your constants file
+                
                 globals()[var_name.replace(" ", "_").lower()] = input_widget.value()
             elif isinstance(input_widget, QDoubleSpinBox):
                 globals()[var_name.replace(" ", "_").lower()] = input_widget.value()
