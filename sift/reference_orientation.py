@@ -9,8 +9,8 @@ from typing import Tuple, List
 import numpy as np
 
 import const
-from keypoints import Keypoint
-from octaves import shift, pixel_dist_in_octave, absolute_sigma
+from sift import Keypoint
+from sift import shift, pixel_dist_in_octave, absolute_sigma
 
 
 def reference_patch_width(octave_idx: int, sigma: float):

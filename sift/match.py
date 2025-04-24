@@ -6,8 +6,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import ConnectionPatch
 
-import const
-from keypoints import Keypoint
+import sift as const
+from sift import Keypoint
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import ConnectionPatch
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from io import BytesIO
+from PIL import Image
 
 
 def match_sift_features(features1: list[Keypoint],
@@ -84,3 +91,49 @@ def visualize_matches(matches: list[tuple[Keypoint, Keypoint]],
         ax2.add_artist(con)
 
     plt.show()
+
+
+
+def visualize_matches_ndarray(matches: list[tuple[Keypoint, Keypoint]],
+                      img1: np.ndarray,
+                      img2: np.ndarray):
+        
+        """Returns the SIFT keypoint matches visualization as an image (NumPy array)."""
+        
+        coords_1 = [match[0].absolute_coordinate for match in matches]
+        coords_1y = [coord[1] for coord in coords_1]
+        coords_1x = [coord[2] for coord in coords_1]
+        coords_1xy = [(x, y) for x, y in zip(coords_1x, coords_1y)]
+
+        coords_2 = [match[1].absolute_coordinate for match in matches]
+        coords_2y = [coord[1] for coord in coords_2]
+        coords_2x = [coord[2] for coord in coords_2]
+        coords_2xy = [(x, y) for x, y in zip(coords_2x, coords_2y)]
+
+        fig = plt.figure(figsize=(10, 5))
+        canvas = FigureCanvas(fig)
+        ax1 = fig.add_subplot(121)
+        ax2 = fig.add_subplot(122)
+
+        ax1.imshow(img1, cmap='gray')
+        ax2.imshow(img2, cmap='gray')
+
+        ax1.scatter(coords_1x, coords_1y, c='cyan', s=5)
+        ax2.scatter(coords_2x, coords_2y, c='cyan', s=5)
+
+        for p1, p2 in zip(coords_1xy, coords_2xy):
+            con = ConnectionPatch(xyA=p2, xyB=p1, coordsA="data", coordsB="data", axesA=ax2, axesB=ax1, color="red", linewidth=0.5)
+            ax2.add_artist(con)
+
+        # Render figure to a canvas and convert it to a NumPy image
+        canvas.draw()
+        buf = BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+        image = Image.open(buf)
+        image_np = np.array(image)
+
+        plt.close(fig)  # Prevent showing the figure
+        return image_np
+    
+    
