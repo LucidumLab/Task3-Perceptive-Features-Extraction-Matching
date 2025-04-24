@@ -109,83 +109,83 @@ class Feature_DetectionTab(QWidget):
         print("Harris function applied.")
         
 
+
 class Feature_Detection_Frame(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        
         main_layout = QVBoxLayout(self)
         main_layout.setAlignment(Qt.AlignCenter)
 
         
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.setObjectName("image_splitter")
+        grid_layout = QGridLayout()
 
         
         self.image_1 = QLabel("Input (Double-click to load image)")
-        self.image_1.setMinimumSize(QSize(650,650))  
+        self.image_1.setMinimumSize(QSize(650, 430))
         self.image_1.setObjectName("original_label")
         self.image_1.setAlignment(Qt.AlignCenter)
-        self.image_1.mouseDoubleClickEvent = self.on_input_double_click
-        splitter.addWidget(self.image_1)
+        self.image_1.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_1)
 
-        
         self.image_2 = QLabel("Output")
-        self.image_2.setMinimumSize(QSize(650,650))  
+        self.image_2.setMinimumSize(QSize(650, 430))
         self.image_2.setObjectName("template_label")
         self.image_2.setAlignment(Qt.AlignCenter)
-        splitter.addWidget(self.image_2)
+        self.image_2.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_2)
+
+        self.image_3 = QLabel("Output 2")
+        self.image_3.setMinimumSize(QSize(650, 430))
+        self.image_3.setObjectName("template_label")
+        self.image_3.setAlignment(Qt.AlignCenter)
+        self.image_3.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_3)
 
         
-        main_layout.addWidget(splitter)
+        grid_layout.addWidget(self.image_1, 0, 0)  
+        grid_layout.addWidget(self.image_2, 0, 1)  
+        grid_layout.addWidget(self.image_3, 1, 1)  
+
+        
+        main_layout.addLayout(grid_layout)
 
         
         self.input_image = None
         self.output_image = None
+        self.output_image_2 = None
 
-    def on_input_double_click(self, event):
-        """Handle double-click on the input label to load an image"""
-        self.load_input_image()
-    
-    def load_input_image(self):
-        """Load an image from disk and display it in the input label"""
+    def on_input_double_click(self, label):
+        """Handle double-click on a label to load an image"""
+        self.load_input_image(label)
+
+    def load_input_image(self, label):
+        """Load an image from disk and display it in the specified label"""
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.bmp *.jpeg)")
-        
+
         if file_path:
-            
             image = cv2.imread(file_path)
             if image is None:
                 QMessageBox.critical(self, "Error", "Failed to load image.")
                 return
-                
-            
-            self.input_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            
-            
-            self.display_image(self.input_image, 1)
-            
-            
-            
-            
-            
-    
-    def display_image(self, image, label_number):
+
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            self.display_image(image, label)
+
+    def display_image(self, image, label):
         """
         Displays the given image in the specified label.
 
         Args:
             image (numpy.ndarray): The image to display.
-            label_number (int): The label number (1 for Input, 2 for Output).
+            label (QLabel): The label to display the image in.
         """
         if image is None:
             return
-            
-        if len(image.shape) == 3: 
+
+        if len(image.shape) == 3:
             h, w, ch = image.shape
             bytes_per_line = ch * w
             qimg = QImage(image.data, w, h, bytes_per_line, QImage.Format_RGB888)
-        elif len(image.shape) == 2:  
+        elif len(image.shape) == 2:
             h, w = image.shape
             qimg = QImage(image.data, w, h, w, QImage.Format_Grayscale8)
         else:
@@ -193,8 +193,4 @@ class Feature_Detection_Frame(QFrame):
             return
 
         pixmap = QPixmap.fromImage(qimg)
-        
-        if label_number == 1:
-            self.image_1.setPixmap(pixmap.scaled(self.image_1.width(), self.image_1.height(), Qt.KeepAspectRatio))
-        elif label_number == 2:
-            self.image_2.setPixmap(pixmap.scaled(self.image_2.width(), self.image_2.height(), Qt.KeepAspectRatio))
+        label.setPixmap(pixmap.scaled(label.width(), label.height(), Qt.KeepAspectRatio))
