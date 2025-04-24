@@ -2,9 +2,16 @@
 This class implements the Harris corner detection algorithm.
 It is used to detect corners in an image by analyzing the intensity gradients in the image.
 '''
-from ImageModel import ImageModel
+from models.ImageModel import ImageModel
 import numpy as np
 import cv2
+import cv2
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib import pyplot as plt
+from io import BytesIO
+import numpy as np
+from PIL import Image
 
 class CornerDetection:
 
@@ -62,7 +69,7 @@ class CornerDetection:
         sigma, smoothing_window, k, threshold = self.get_parameters()
         
         # Compute gradients
-        
+    
         # Compute products of gradients
         Ixx = image.Ix * image.Ix
         Ixy = image.Ix * image.Iy
@@ -90,8 +97,37 @@ class CornerDetection:
         
         # Return as list of (x, y) tuples
         return [(int(x), int(y)) for y, x in selected_corners]
+    def visualize_corners(self, image, corners, title='Corners'):
+        # Convert grayscale image to BGR for visualization
+        img_color = cv2.cvtColor( image, cv2.COLOR_GRAY2BGR)
         
-     
+        # Create a new figure and axes for Matplotlib
+        fig, ax = plt.subplots()
+        ax.imshow(cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB))  # Show image in RGB format
+        
+        # Plot corners as red circles
+        for y, x in corners:
+            ax.plot(x, y, 'ro', markersize=3)
+
+        # Render the figure to a canvas
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+
+        # Save the canvas to a buffer
+        buf = BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+
+        # Convert the buffer to a PIL Image and then to a NumPy array
+        image_pil = Image.open(buf)
+        image_np = np.array(image_pil)
+
+        # Close the figure to prevent it from showing
+        plt.close(fig)
+        
+        # Return the image as a NumPy array
+        return image_np
+    
      
     def get_parameters(self):
         
@@ -1119,6 +1155,7 @@ def visualize_manual_matches(image1, kp1, image2, kp2, matches):
         cv2.circle(vis, (x2, y2), 3, color, -1)
     
     return vis
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 

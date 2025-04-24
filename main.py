@@ -17,7 +17,9 @@ from PyQt5.QtWidgets import (
 )
 
 
-from sift import *
+from sift_matching import *
+from sift.harris import CornerDetection
+from models.ImageModel import ImageModel
 
 # from ui.tabs.ActiveContourTab import ActiveContourTab
 # from ui.tabs.HoughTransformTab import HoughTransformTab
@@ -128,6 +130,8 @@ class MainWindow(QMainWindow):
         self.feature_detection_layout.setAlignment(Qt.AlignCenter)  # Center the content vertically and horizontally
         self.right_layout.addWidget(self.feature_detection_frame, alignment=Qt.AlignCenter)  # Center the frame
         self.feature_detection_tab.btn_sift.clicked.connect(self.sift_matching)
+        self.feature_detection_tab.btn_harris.clicked.connect(self.detect_corners)
+
         main_layout.addWidget(self.right_frame)
 
     def sift_matching(self):
@@ -137,8 +141,24 @@ class MainWindow(QMainWindow):
         output_image, _, _, _ = apply_sift(image_1, image_2)
         
         self.feature_detection_frame.display_image(output_image, 2)
-        
-        
+    
+    def detect_corners(self):
+        image_1 = self.feature_detection_frame.image_1
+        image_2 = self.feature_detection_frame.image_2
+        image_model1 = ImageModel()
+        image_model1.set_image(image_1)  
+        image_model2 = ImageModel()
+        image_model2.set_image(image_2)
+        corner_detector = CornerDetection()
+
+        harris_corners = corner_detector.corner_detection_harris(image_model1)
+        shi_corners = corner_detector.corner_detection_shi(image_model1)
+
+        output_image = corner_detector.visualize_corners(image_1, harris_corners)
+        self.feature_detection_frame.display_image(output_image, 2)
+
+
+              
     def on_tab_changed(self, index):
         """
         Switch the content of the right frame based on the selected tab.
