@@ -135,27 +135,30 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.right_frame)
 
     def sift_matching(self):
+        image_1 = self.feature_detection_frame.image1_array
+        image_2 = self.feature_detection_frame.image2_array
         
-        image_1 = self.feature_detection_frame.image_1
-        image_2 = self.feature_detection_frame.image_2
         output_image, _, _, _ = apply_sift(image_1, image_2)
         
-        self.feature_detection_frame.display_image(output_image, 2)
+ 
+        label = self.feature_detection_frame.image_3
+        self.feature_detection_frame.display_image(output_image, label)
     
     def detect_corners(self):
-        image_1 = self.feature_detection_frame.image_1
-        image_2 = self.feature_detection_frame.image_2
+        image_1 = self.feature_detection_frame.image1_array
+        
+        print(image_1.shape)
         image_model1 = ImageModel()
         image_model1.set_image(image_1)  
-        image_model2 = ImageModel()
-        image_model2.set_image(image_2)
+
         corner_detector = CornerDetection()
 
         harris_corners = corner_detector.corner_detection_harris(image_model1)
         shi_corners = corner_detector.corner_detection_shi(image_model1)
+        label = self.feature_detection_frame.image_2
 
         output_image = corner_detector.visualize_corners(image_1, harris_corners)
-        self.feature_detection_frame.display_image(output_image, 2)
+        self.feature_detection_frame.display_image(output_image, label)
 
 
               

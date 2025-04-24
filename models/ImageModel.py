@@ -38,11 +38,9 @@ class ImageModel:
             image (numpy.ndarray): Input image.
         '''
         self.image = image
-        if len(image.shape) == 3 and image.shape[2] == 3:
-            self.gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        else:
-            self.gray = image
-        print("Image shape:", self.gray.shape)
+
+        self.gray = image
+        print("Image shape:", self.gray)
         self.Ix, self.Iy = self.compute_gradients()
         self.Ixx = self.Ix**2
         self.Ixy = self.Ix * self.Iy

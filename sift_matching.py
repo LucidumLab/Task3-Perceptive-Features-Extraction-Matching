@@ -4,11 +4,11 @@ import numpy as np
 import sys
 sys.path.append('D:/SBME/3rd Year/CV/Tasks/LucidumLab/Task3-Perceptive-Features-Extraction-Matching')
 
-from models.sift.descriptor import assign_descriptor
-from models.sift.keypoints import Keypoint, find_keypoints
-from models.sift.match import match_sift_features, visualize_matches
-from models.sift.octaves import build_gaussian_octaves, build_dog_octave, find_dog_extrema
-from models.sift.reference_orientation import assign_reference_orientations
+from sift.descriptor import assign_descriptor
+from sift.keypoints import Keypoint, find_keypoints
+from sift.match import match_sift_features, visualize_matches
+from sift.octaves import build_gaussian_octaves, build_dog_octave, find_dog_extrema
+from sift.reference_orientation import assign_reference_orientations
 
 
 def detect_sift_features(img: np.ndarray) -> list[Keypoint]:
@@ -67,8 +67,8 @@ def apply_sift(img1, img2):
 
 def main():
     """ Detects and matches SIFT features in two images. """
-    img1 = cv2.imread('box.png', flags=cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread('box_in_scene.png', flags=cv2.IMREAD_GRAYSCALE)
+    img1 = cv2.imread('data/box.png', flags=cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread('data/box_in_scene.png', flags=cv2.IMREAD_GRAYSCALE)
     img1 = cv2.normalize(img1, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
     img2 = cv2.normalize(img2, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 

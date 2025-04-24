@@ -134,18 +134,20 @@ class Feature_Detection_Frame(QFrame):
         
         grid_layout = QGridLayout()
 
-        
+        self.image1_array = None
+        self.image2_array = None
+        self.image3_array = None
         self.image_1 = QLabel("Input (Double-click to load image)")
         self.image_1.setMinimumSize(QSize(650, 430))
         self.image_1.setObjectName("original_label")
         self.image_1.setAlignment(Qt.AlignCenter)
-        self.image_1.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_1)
+        self.image_1.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_1, 1)
 
         self.image_2 = QLabel("Output")
         self.image_2.setMinimumSize(QSize(650, 430))
         self.image_2.setObjectName("template_label")
         self.image_2.setAlignment(Qt.AlignCenter)
-        self.image_2.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_2)
+        self.image_2.mouseDoubleClickEvent = lambda event: self.on_input_double_click(self.image_2, 2)
 
         self.image_3 = QLabel("Output 2")
         self.image_3.setMinimumSize(QSize(650, 430))
@@ -166,22 +168,30 @@ class Feature_Detection_Frame(QFrame):
         self.output_image = None
         self.output_image_2 = None
 
-    def on_input_double_click(self, label):
+    def on_input_double_click(self, label, idx = 0):
         """Handle double-click on a label to load an image"""
-        self.load_input_image(label)
+        self.load_input_image(label, idx)
 
-    def load_input_image(self, label):
+    def load_input_image(self, label, idx):
         """Load an image from disk and display it in the specified label"""
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.bmp *.jpeg)")
 
         if file_path:
-            image = cv2.imread(file_path)
+            image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+            print(image.shape)
+            
+            if idx == 1:
+                self.image1_array = image
+                print(f'image_uploaded: {self.image1_array.shape}')
+            elif idx == 2:
+                self.image2_array = image
+            else:
+                self.image3_array = image
             if image is None:
                 QMessageBox.critical(self, "Error", "Failed to load image.")
                 return
 
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             self.display_image(image, label)
 
     def display_image(self, image, label):
@@ -206,5 +216,6 @@ class Feature_Detection_Frame(QFrame):
             QMessageBox.critical(self, "Error", "Unsupported image format.")
             return
 
+            
         pixmap = QPixmap.fromImage(qimg)
         label.setPixmap(pixmap.scaled(label.width(), label.height(), Qt.KeepAspectRatio))

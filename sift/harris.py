@@ -1184,7 +1184,3 @@ if __name__ == "__main__":
         plt.axis('off')
         plt.show()
 
-# Visualize
-visualize_corners(img, harris_corners, title="Harris Corners")
-visualize_corners(img, shi_corners, title="Shi-Tomasi Corners")
-    

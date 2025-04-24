@@ -7,7 +7,8 @@ import numpy as np
 from matplotlib.patches import ConnectionPatch
 
 import sift as const
-from sift import Keypoint
+from sift.keypoints import Keypoint
+from . import const
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -9,7 +9,7 @@ from typing import Tuple
 import numpy as np
 
 from . import const
-from octaves import absolute_sigma, derivatives, pixel_dist_in_octave
+from sift.octaves import absolute_sigma, derivatives, pixel_dist_in_octave
 
 
 class Keypoint:

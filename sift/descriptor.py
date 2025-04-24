@@ -5,12 +5,12 @@ to a keypoint. The central function in this file is
 """
 
 import numpy as np
-
-import const
-from sift import Keypoint
-from sift import pixel_dist_in_octave
-from sift import gradients, patch_in_frame, weighting_matrix
-
+import sys
+from sift.keypoints import Keypoint
+from sift.octaves import pixel_dist_in_octave
+from sift.reference_orientation import gradients, patch_in_frame, weighting_matrix
+sys.path.append(r'D:\SBME\3rd Year\CV\Tasks\LucidumLab\Task3-Perceptive-Features-Extraction-Matching\sift')
+import const as const
 
 def hist_centers() -> np.ndarray:
     """ Calculates relative coordinates of histogram centers within a descriptor patch.
